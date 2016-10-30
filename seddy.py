@@ -102,9 +102,9 @@ if __name__ == "__main__":
         if 'PING' in line:
             send.write('PONG\r\n')
             send.flush()
-        if '.bots' in msg or '.bot ' + nick in msg:
+        if '.bots' in msg[:5] or '.bot ' + nick in msg[:5 + len(nick)]:
             notice("I was written to correct your mistakes.")
-	if '.source ' + nick in msg:
+	if '.source ' + nick in msg[:8 + len(nick)]:
             notice('[Python] https://github.com/sys-fs/seddy')
         elif is_sed.match(msg):
             foo = seddy(msg, history)
