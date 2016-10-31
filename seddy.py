@@ -12,7 +12,7 @@ send = open('/tmp/' + server + '.out', 'w')
 
 parse_msg = re.compile(' :(.*)')
 parse_sed = re.compile('(?<!\\\\)/')
-is_sed = re.compile('s/.*/.*')
+is_sed = re.compile('^s/.*/.*')
 
 class Queue:
     size = 0
