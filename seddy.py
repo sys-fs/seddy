@@ -57,6 +57,8 @@ class Queue:
 
 def seddy(sed, history):
     regex = parse_sed.split(sed)
+    if len(regex) < 4:
+	return False
     msg = history.find(regex[1])
     f = 0
 
