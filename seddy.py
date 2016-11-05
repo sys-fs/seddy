@@ -44,32 +44,32 @@ class Queue:
     def empty(self):
         return self.head == self.count
 
-    def find(self, s):
+    def find(self, s, flags=0):
         i = self.tail-1
         while True:
             if i == -1:
                 i = self.size-1
-            if re.search(s, self.data[i]):
+            if re.search(s, self.data[i], flags):
                 return self.data[i]
             i -= 1
             if i == self.tail-1 or self.data[i] is None:
                 return False
 
 def seddy(sed, history):
+    flag = 0
     regex = parse_sed.split(sed)
+
     if len(regex) < 4:
 	return False
-    msg = history.find(regex[1])
-    f = 0
-
+    if 'i' in regex[3]:
+        flag |= re.I
+    msg = history.find(regex[1], flag)
     if msg == False:
         return False
-    if 'i' in regex[3]:
-        f |= re.I
     if "g" in regex[3]:
-        return re.sub(regex[1], regex[2], msg, flags=f)
+        return re.sub(regex[1], regex[2], msg, flags=flag)
     else:
-        return re.sub(regex[1], regex[2], msg, 1)
+        return re.sub(regex[1], regex[2], msg, 1, flag)
 
 def notice(msg):
     send.write('NOTICE ' + channel + ' :' + msg + '\r\n')
