@@ -10,7 +10,7 @@ gecos = 'A text processing bot'
 receive = open('/tmp/' + server + '.in', 'r')
 send = open('/tmp/' + server + '.out', 'w')
 
-parse_msg = re.compile(' :(.*)')
+parse_msg = re.compile(channel + ' :(.*)')
 parse_sed = re.compile('(?<!\\\\)/')
 is_sed = re.compile('^s/.*/.*')
 
