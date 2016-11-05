@@ -92,6 +92,9 @@ if __name__ == "__main__":
     for line in receive:
         msg = parse_msg.search(line)
         if msg is None:
+	    if 'PING' in line:
+                send.write('PONG\r\n')
+                send.flush()
             continue
         else:
             msg = msg.group(1)
@@ -101,9 +104,6 @@ if __name__ == "__main__":
         if 'PRIVMSG' in line and not is_sed.match(msg):
             history.enqueue(msg)
 
-        if 'PING' in line:
-            send.write('PONG\r\n')
-            send.flush()
         if '.bots' in msg[:5] or '.bot ' + nick in msg[:5 + len(nick)]:
             notice("I was written to correct your mistakes.")
 	if '.source ' + nick in msg[:8 + len(nick)]:
