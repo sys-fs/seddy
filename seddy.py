@@ -52,7 +52,7 @@ class Queue:
             if re.search(s, self.data[i]):
                 return self.data[i]
             i -= 1
-            if i == self.tail-1:
+            if i == self.tail-1 or self.data[i] is None:
                 return False
 
 def seddy(sed, history):
