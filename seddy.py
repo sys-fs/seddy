@@ -63,7 +63,10 @@ def seddy(sed, history):
 	return False
     if 'i' in regex[3]:
         flag |= re.I
-    msg = history.find(regex[1], flag)
+    try:
+        msg = history.find(regex[1], f)
+    except:
+        msg = False
     if msg == False:
         return False
     if "g" in regex[3]:
