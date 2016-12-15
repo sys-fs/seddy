@@ -67,9 +67,16 @@ def seddy(sed, history):
     if msg == False:
         return False
     if "g" in regex[3]:
-        return re.sub(regex[1], regex[2], msg, flags=flag)
+        try:
+            res = re.sub(regex[1], regex[2], msg, flags=f)
+        except:
+            res = False
     else:
-        return re.sub(regex[1], regex[2], msg, 1, flag)
+        try:
+            res = re.sub(regex[1], regex[2], msg, 1, f)
+        except:
+            res = False
+    return res
 
 def notice(msg):
     send.write('NOTICE ' + channel + ' :' + msg + '\r\n')
