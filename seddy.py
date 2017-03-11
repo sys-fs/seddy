@@ -121,6 +121,7 @@ if __name__ == "__main__":
 	if '.source ' + nick in msg[:8 + len(nick)]:
             notice('[Python] https://github.com/sys-fs/seddy')
         elif is_sed.match(msg):
-            foo = ''.join(c for c in seddy(msg, history) if c not in '\r\n')
+            foo = seddy(msg,history)
+	    foo = ''.join(c for c in foo if c not in '\r\n')
             if foo != False:
                 privmsg(re.sub('\\\\/', '/', foo))
