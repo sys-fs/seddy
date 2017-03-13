@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 # See the LICENSE file for licensing information
 import re
-from string import printable
 
 nick = 'seddy'
 server = 'chat.freenode.net'
@@ -88,7 +87,7 @@ def notice(msg):
 
 def privmsg(msg):
     send.write('PRIVMSG ' + channel + ' :' +
-               ''.join(filter(printable.__contains__, msg)) + '\r\n')
+               ''.join(c for c in msg if c.isprintable()) + '\r\n')
     send.flush()
 
 if __name__ == "__main__":
@@ -122,6 +121,5 @@ if __name__ == "__main__":
             notice('[Python] https://github.com/sys-fs/seddy')
         elif is_sed.match(msg):
             foo = seddy(msg,history)
-	    foo = ''.join(c for c in foo if c not in '\r\n')
             if foo != False:
                 privmsg(re.sub('\\\\/', '/', foo))
