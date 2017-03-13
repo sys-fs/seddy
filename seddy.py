@@ -86,8 +86,12 @@ def notice(msg):
     send.flush()
 
 def privmsg(msg):
-    send.write('PRIVMSG ' + channel + ' :' +
-               ''.join(c for c in msg if c.isprintable()) + '\r\n')
+    if msg[:7] == '\x01ACTION':
+        send.write('PRIVMSG ' + channel + ' :' + '\x01' +
+                   ''.join(c for c in msg if c.isprintable()) + '\x01\r\n')
+    else:
+        send.write('PRIVMSG ' + channel + ' :' +
+                   ''.join(c for c in msg if c.isprintable()) + '\r\n')
     send.flush()
 
 if __name__ == "__main__":
