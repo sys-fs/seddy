@@ -56,13 +56,13 @@ class Queue:
                 return False
 
 def seddy(sed, history):
-    flag = 0
+    f = 0
     regex = parse_sed.split(sed)
 
     if len(regex) < 4:
 	return False
     if 'i' in regex[3]:
-        flag |= re.I
+        f |= re.I
     try:
         msg = history.find(regex[1], f)
     except:
