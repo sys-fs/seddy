@@ -70,13 +70,13 @@ def seddy(sed, history, parser):
     regex = parser.split(sed)
 
     if len(regex) < 4:
-         return choice(haiku)
+         return False
     if 'i' in regex[3]:
         f |= re.I
     try:
         msg = history.find(regex[1], f)
     except:
-        return choice(haiku)
+        return False
     if "g" in regex[3]:
         res = msg_replace(regex[1], regex[2], msg, 0, f)
     else:
