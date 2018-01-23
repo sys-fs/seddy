@@ -7,8 +7,8 @@ server = 'chat.freenode.net'
 channel = '#example'
 gecos = 'A text processing bot'
 
-receive = open('/tmp/' + server + '.in', 'r')
-send = open('/tmp/' + server + '.out', 'w')
+receive = '/tmp/{0}.in'.format(server)
+send = '/tmp/{0}.out'.format(server)
 
 parse_msg = re.compile(channel + ' :(.*)')
 parse_sed = re.compile('(?<!\\\\)/')
@@ -54,76 +54,84 @@ class Queue:
             i -= 1
             if i == self.tail-1 or self.data[i] is None:
                 return False
+	
+def msg_replace(find, replace, msg, f, n=1):
+    try:
+        if msg[:7] == '\x01ACTION':
+            res = '\x01ACTION {0}'.format(re.sub(find, replace, msg[8:], count=n, flags=f))
+        else:
+            res = re.sub(find, replace, msg, count=n, flags=f)
+    except:
+        return False
+    return res
 
-def seddy(sed, history):
+def seddy(sed, history, parser):
     f = 0
-    regex = parse_sed.split(sed)
+    regex = parser.split(sed)
 
     if len(regex) < 4:
-	return False
+         return choice(haiku)
     if 'i' in regex[3]:
         f |= re.I
     try:
         msg = history.find(regex[1], f)
     except:
-        msg = False
-    if msg == False:
-        return False
+        return choice(haiku)
     if "g" in regex[3]:
-        try:
-            res = re.sub(regex[1], regex[2], msg, flags=f)
-        except:
-            res = False
+        res = msg_replace(regex[1], regex[2], msg, 0, f)
     else:
-        try:
-            res = re.sub(regex[1], regex[2], msg, 1, f)
-        except:
-            res = False
+        res = msg_replace(regex[1], regex[2], msg, 1, f)
+    if res:
+        res = res.replace('\0', re.search(regex[1], msg, f).group(0))
     return res
 
-def notice(msg):
-    send.write('NOTICE ' + channel + ' :' + msg + '\r\n')
-    send.flush()
+def notice(msg, channel):
+    with open(send, 'w', encoding='utf-8') as g:
+        g.write('NOTICE ' + channel + ' :' + msg + '\r\n')
 
-def privmsg(msg):
+def privmsg(msg, channel):
     if msg[:7] == '\x01ACTION':
-        send.write('PRIVMSG ' + channel + ' :' + '\x01' +
-                   ''.join(c for c in msg if c.isprintable()) + '\x01\r\n')
+        with open(send, 'w', encoding='utf-8') as g:
+            g.write('PRIVMSG ' + channel + ' :' + '\x01' +
+                    ''.join(c for c in msg if c.isprintable()) + '\x01\r\n')
     else:
-        send.write('PRIVMSG ' + channel + ' :' +
-                   ''.join(c for c in msg if c.isprintable()) + '\r\n')
-    send.flush()
+        with open(send, 'w', encoding='utf-8') as g:
+            g.write('PRIVMSG ' + channel + ' :' + 
+                    msg.replace('\n', ' ',).replace('\r', '') + '\r\n')
 
 if __name__ == "__main__":
     history = Queue(48)
 
-    send.write('NICK ' + nick + '\r\n')
-    send.flush()
-    send.write('USER ' + nick + ' * 8 :' + gecos + '\r\n')
-    send.flush()
-    send.write('JOIN ' + channel + '\r\n')
-    send.flush()
+    with open(send, 'w', encoding='utf-8') as f:
+       f.write('NICK ' + nick + '\r\n')
+       f.write('USER ' + nick + ' * 8 :' + gecos + '\r\n')
+       sleep(5)
+       f.write('JOIN ' + channel + '\r\n')
 
-    for line in receive:
-        msg = parse_msg.search(line)
-        if msg is None:
-	    if 'PING' in line:
-                send.write('PONG\r\n')
-                send.flush()
-            continue
-        else:
-            msg = msg.group(1)
+    with open(receive, 'r', encoding='utf-8') as f:
+        for line in f:
+            if 'PING' in line:
+                with open(send, 'w', encoding='utf-8') as g:
+                    g.write('PONG {0}\r\n'.format(ping.split(line)[1]))
+                continue
 
-        if history.full():
-            history.dequeue()
-        if 'PRIVMSG' in line and not is_sed.match(msg):
-            history.enqueue(msg)
+            m = parse_msg.match(line)
+            try:
+                channel = m.group(1)
+                msg = m.group(2)
+            except:
+                continue
 
-        if '.bots' in msg[:5] or '.bot ' + nick in msg[:5 + len(nick)]:
-            notice("I was written to correct your mistakes.")
-	if '.source ' + nick in msg[:8 + len(nick)]:
-            notice('[Python] https://github.com/sys-fs/seddy')
-        elif is_sed.match(msg):
-            foo = seddy(msg,history)
-            if foo != False:
-                privmsg(re.sub('\\\\/', '/', foo))
+            if history.full():
+                history.dequeue()
+            if 'PRIVMSG' in line and not is_sed.match(msg):
+                history.enqueue(msg)
+
+            if '.bots' in msg[:5] or '.bot ' + nick in msg[:5 + len(nick)]:
+                notice("I was written to correct your mistakes.")
+       	    if '.source ' + nick in msg[:8 + len(nick)]:
+                notice('[Python] https://github.com/sys-fs/seddy')
+            elif is_sed.match(msg):
+                res = seddy(msg, history)
+                if res:
+                    privmsg(re.sub('\\\\/', '/', foo))
