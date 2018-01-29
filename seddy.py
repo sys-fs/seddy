@@ -13,6 +13,7 @@ send = '/tmp/{0}.out'.format(server)
 parse_msg = re.compile(channel + ' :(.*)')
 parse_sed = re.compile('(?<!\\\\)/')
 is_sed = re.compile('^s/.*/.*')
+ping = re.compile('PING :(.*)')
 
 class Queue:
     size = 0
