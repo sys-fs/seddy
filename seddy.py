@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 # See the LICENSE file for licensing information
 import re
+from time import sleep
+from random import choice
 
 nick = 'seddy'
 server = 'chat.freenode.net'
@@ -10,7 +12,7 @@ gecos = 'A text processing bot'
 receive = '/tmp/{0}.in'.format(server)
 send = '/tmp/{0}.out'.format(server)
 
-parse_msg = re.compile(channel + ' :(.*)')
+parse_msg = re.compile('.* PRIVMSG ' + channel + ' :(.*)')
 parse_sed = re.compile('(?<!\\\\)/')
 is_sed = re.compile('^s/.*/.*')
 ping = re.compile('PING :(.*)')
@@ -45,17 +47,17 @@ class Queue:
     def empty(self):
         return self.head == self.count
 
-    def find(self, s, flags=0):
+    def find(self, s, f=0):
         i = self.tail-1
         while True:
             if i == -1:
                 i = self.size-1
-            if re.search(s, self.data[i], flags):
+            if re.search(s, self.data[i], f):
                 return self.data[i]
             i -= 1
             if i == self.tail-1 or self.data[i] is None:
                 return False
-	
+
 def msg_replace(find, replace, msg, f, n=1):
     try:
         if msg[:7] == '\x01ACTION':
@@ -71,7 +73,7 @@ def seddy(sed, history, parser):
     regex = parser.split(sed)
 
     if len(regex) < 4:
-         return False
+        return False
     if 'i' in regex[3]:
         f |= re.I
     try:
@@ -79,9 +81,9 @@ def seddy(sed, history, parser):
     except:
         return False
     if "g" in regex[3]:
-        res = msg_replace(regex[1], regex[2], msg, 0, f)
+        res = msg_replace(regex[1], regex[2], msg, f, n=0)
     else:
-        res = msg_replace(regex[1], regex[2], msg, 1, f)
+        res = msg_replace(regex[1], regex[2], msg, f)
     if res:
         res = res.replace('\0', re.search(regex[1], msg, f).group(0))
     return res
@@ -118,8 +120,7 @@ if __name__ == "__main__":
 
             m = parse_msg.match(line)
             try:
-                channel = m.group(1)
-                msg = m.group(2)
+                msg = m.group(1)
             except:
                 continue
 
@@ -129,10 +130,14 @@ if __name__ == "__main__":
                 history.enqueue(msg)
 
             if '.bots' in msg[:5] or '.bot ' + nick in msg[:5 + len(nick)]:
-                notice("I was written to correct your mistakes.")
-       	    if '.source ' + nick in msg[:8 + len(nick)]:
-                notice('[Python] https://github.com/sys-fs/seddy')
+                notice("I was written to correct your mistakes.", channel)
+            if '.source ' + nick in msg[:8 + len(nick)]:
+                notice('[Python] https://github.com/sys-fs/seddy', channel)
             elif is_sed.match(msg):
-                res = seddy(msg, history)
+                res = seddy(msg, history, parse_sed)
                 if res:
-                    privmsg(re.sub('\\\\/', '/', foo))
+                    res = re.sub('\\\\/', '/', res)
+                    if history.full():
+                        history.dequeue()
+                    history.enqueue(res)
+                    privmsg(res, channel)
