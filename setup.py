@@ -5,8 +5,8 @@ from setuptools import setup, find_packages
 setup(
     name = 'seddy',
     version = '0.1.0',
-    license = 'MIT',
-    description = 'Deployment tool for Drupal sites.',
+    license = 'BSD',
+    description = 'An IRC bot for tubes.',
 
     author='Thomas Mannay',
     author_email='tfm@airmail.cc',
@@ -14,8 +14,6 @@ setup(
 
     packages=find_packages(where='src'),
     package_dir={'': 'src'},
-
-#    install_requires=['boto3', 'fabric', 'rocketchat-API'],
 
     entry_points={
         'console_scripts': [
