@@ -49,7 +49,7 @@ class Queue:
 
 
 def main():
-    nick = 'sedward'
+    nick = 'seddy'
     server = 'lain.church'
     channel = '#sedward'
     gecos = 'A text processing bot'
