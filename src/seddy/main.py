@@ -51,7 +51,7 @@ class Queue:
 def main():
     nick = 'seddy'
     server = 'lain.church'
-    channel = '#sedward'
+    channel = '#lain'
     gecos = 'A text processing bot'
 
     history = Queue(48)
