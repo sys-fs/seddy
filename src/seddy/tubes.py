@@ -34,7 +34,7 @@ class Tube:
         '''Send a message.'''
         if message[:7] == '\x01ACTION':
             with open(self.outgoing, 'w', encoding='utf-8') as send:
-                sanitised = ''.join(c for c in msg if c.isprintable())
+                sanitised = ''.join(c for c in message if c.isprintable())
                 send.write('PRIVMSG {} :\x01{}\x01\r\n'.format(channel, sanitised))
         else:
             with open(self.outgoing, 'w', encoding='utf-8') as send:
